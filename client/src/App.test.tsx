@@ -9,7 +9,7 @@ test('renders learn react link', () => {
 });
 
 test('renders Test button and handles health check', async () => {
-  // Mock fetch using spyOn to enable proper cleanup
+  // Mock fetch using spyOn for proper cleanup
   const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
     ok: true,
   } as Response);
