@@ -38,4 +38,22 @@ app.UseHttpsRedirection();
 // TODO: Replace or extend this with domain-specific endpoints for Planning Poker.
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
+// Room CRUD endpoints
+app.MapPost("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo, PlanningPoker.Api.Models.RoomConfig room) => Results.Ok(repo.Create(room)));
+app.MapPut("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId, PlanningPoker.Api.Models.RoomConfig room) =>
+{
+    room.RoomId = roomId;
+    return repo.Update(room) ? Results.Ok(room) : Results.NotFound();
+});
+app.MapGet("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId) =>
+{
+    var room = repo.Get(roomId);
+    return room != null ? Results.Ok(room) : Results.NotFound();
+});
+app.MapDelete("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId) =>
+{
+    return repo.Delete(roomId) ? Results.Ok() : Results.NotFound();
+});
+app.MapGet("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo) => Results.Ok(repo.GetAll()));
+
 app.Run();
