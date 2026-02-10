@@ -15,7 +15,7 @@ test('renders Test button and handles health check', async () => {
   } as Response);
 
   render(<App />);
-  const testButton = screen.getByText('Test');
+  const testButton = screen.getByText('Test API Connection');
   expect(testButton).toBeInTheDocument();
 
   fireEvent.click(testButton);
