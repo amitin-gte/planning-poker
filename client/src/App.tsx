@@ -17,7 +17,8 @@ function App() {
         setHealthStatus('API health check failed.');
       }
     } catch (error) {
-      setHealthStatus('Error connecting to API.');
+      console.error('Error while checking API health:', error);
+      setHealthStatus(`Error connecting to API: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -36,7 +37,7 @@ function App() {
         >
           Learn React
         </a>
-        <button style={{ marginTop: 20 }} onClick={testHealth}>Test</button>
+        <button style={{ marginTop: 20 }} onClick={testHealth}>Test API Connection</button>
         {healthStatus && <div style={{ marginTop: 10 }}>{healthStatus}</div>}
       </header>
     </div>

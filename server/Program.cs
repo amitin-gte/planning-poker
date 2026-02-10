@@ -1,4 +1,3 @@
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,7 +17,6 @@ if (builder.Environment.IsDevelopment())
         });
     });
 }
-
 
 var app = builder.Build();
 
