@@ -6,15 +6,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 // Add CORS policy for local development
-builder.Services.AddCors(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.AddDefaultPolicy(policy =>
+    builder.Services.AddCors(options =>
     {
-        policy.WithOrigins("http://localhost:3000")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
     });
-});
+}
 
 
 var app = builder.Build();
@@ -25,8 +28,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Use CORS before other middleware
-app.UseCors();
+// Use CORS before other middleware (only in development)
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors();
+}
 
 app.UseHttpsRedirection();
 
