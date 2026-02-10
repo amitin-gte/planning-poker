@@ -18,7 +18,7 @@ function App() {
       }
     } catch (error) {
       console.error('Error while checking API health:', error);
-      console.error('Error while checking API health:', error);
+
       setHealthStatus(`Error connecting to API: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };

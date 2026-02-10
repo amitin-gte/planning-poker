@@ -14,16 +14,18 @@ test('renders Test button and handles health check', async () => {
     ok: true,
   } as Response);
 
-  render(<App />);
-  const testButton = screen.getByText('Test API Connection');
-  expect(testButton).toBeInTheDocument();
+  try {
+    render(<App />);
+    const testButton = screen.getByText('Test API Connection');
+    expect(testButton).toBeInTheDocument();
 
-  fireEvent.click(testButton);
+    fireEvent.click(testButton);
 
-  // Wait for the health status to appear
-  const status = await screen.findByText('API is healthy!');
-  expect(status).toBeInTheDocument();
-
-  // Clean up fetch mock
-  fetchSpy.mockRestore();
+    // Wait for the health status to appear
+    const status = await screen.findByText('API is healthy!');
+    expect(status).toBeInTheDocument();
+  } finally {
+    // Clean up fetch mock
+    fetchSpy.mockRestore();
+  }
 });
