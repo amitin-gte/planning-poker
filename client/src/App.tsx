@@ -1,5 +1,6 @@
 
 import React from 'react';
+import logo from './logo.svg';
 const API_BASE_URL = 'http://localhost:5233';
 
 function App() {
@@ -42,4 +43,3 @@ function App() {
 }
 
 export default App;
-import logo from './logo.svg';
