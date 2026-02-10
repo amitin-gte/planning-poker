@@ -17,7 +17,7 @@ namespace PlanningPoker.Tests
         [Fact]
         public void CreateAndGetRoom_Works()
         {
-            var repo = GetRepo();
+            using var repo = GetRepo();
             var room = new RoomConfig { Name = "Test Room", PokerCards = new List<string> { "1", "2", "3" }, VotingCountdownSeconds = 30 };
             var created = repo.Create(room);
             var fetched = repo.Get(created.RoomId);
@@ -29,7 +29,7 @@ namespace PlanningPoker.Tests
         [Fact]
         public void UpdateRoom_Works()
         {
-            var repo = GetRepo();
+            using var repo = GetRepo();
             var room = repo.Create(new RoomConfig { Name = "Room", PokerCards = new List<string> { "A" }, VotingCountdownSeconds = 10 });
             room.Name = "Updated Room";
             var updated = repo.Update(room);
@@ -41,7 +41,7 @@ namespace PlanningPoker.Tests
         [Fact]
         public void DeleteRoom_Works()
         {
-            var repo = GetRepo();
+            using var repo = GetRepo();
             var room = repo.Create(new RoomConfig { Name = "DeleteMe", PokerCards = new List<string> { "X" }, VotingCountdownSeconds = 5 });
             var deleted = repo.Delete(room.RoomId);
             Assert.True(deleted);
@@ -51,11 +51,28 @@ namespace PlanningPoker.Tests
         [Fact]
         public void GetAllRooms_Works()
         {
-            var repo = GetRepo();
+            using var repo = GetRepo();
             repo.Create(new RoomConfig { Name = "Room1", PokerCards = new List<string> { "1" }, VotingCountdownSeconds = 10 });
             repo.Create(new RoomConfig { Name = "Room2", PokerCards = new List<string> { "2" }, VotingCountdownSeconds = 20 });
             var all = repo.GetAll();
             Assert.Equal(2, all.Count);
+        }
+
+        [Fact]
+        public void UpdateRoom_ReturnsFalse_WhenRoomDoesNotExist()
+        {
+            using var repo = GetRepo();
+            var room = new RoomConfig { RoomId = "nonexistent", Name = "Test", PokerCards = new List<string> { "1" }, VotingCountdownSeconds = 10 };
+            var updated = repo.Update(room);
+            Assert.False(updated);
+        }
+
+        [Fact]
+        public void DeleteRoom_ReturnsFalse_WhenRoomDoesNotExist()
+        {
+            using var repo = GetRepo();
+            var deleted = repo.Delete("nonexistent");
+            Assert.False(deleted);
         }
     }
 }

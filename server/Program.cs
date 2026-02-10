@@ -39,7 +39,11 @@ app.UseHttpsRedirection();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 // Room CRUD endpoints
-app.MapPost("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo, PlanningPoker.Api.Models.RoomConfig room) => Results.Ok(repo.Create(room)));
+app.MapPost("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo, PlanningPoker.Api.Models.RoomConfig room) =>
+{
+    var createdRoom = repo.Create(room);
+    return Results.Created($"/rooms/{createdRoom.RoomId}", createdRoom);
+});
 app.MapPut("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId, PlanningPoker.Api.Models.RoomConfig room) =>
 {
     room.RoomId = roomId;
