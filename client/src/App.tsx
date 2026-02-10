@@ -1,8 +1,24 @@
+
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+const API_BASE_URL = 'http://localhost:5233';
 
 function App() {
+  const [healthStatus, setHealthStatus] = React.useState<string | null>(null);
+
+  const testHealth = async () => {
+    setHealthStatus(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`);
+      if (response.ok) {
+        setHealthStatus('API is healthy!');
+      } else {
+        setHealthStatus('API health check failed.');
+      }
+    } catch (error) {
+      setHealthStatus('Error connecting to API.');
+    }
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -18,9 +34,12 @@ function App() {
         >
           Learn React
         </a>
+        <button style={{ marginTop: 20 }} onClick={testHealth}>Test</button>
+        {healthStatus && <div style={{ marginTop: 10 }}>{healthStatus}</div>}
       </header>
     </div>
   );
 }
 
 export default App;
+import logo from './logo.svg';
