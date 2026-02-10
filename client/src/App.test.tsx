@@ -9,10 +9,10 @@ test('renders learn react link', () => {
 });
 
 test('renders Test button and handles health check', async () => {
-  // Mock fetch
-  global.fetch = jest.fn(() =>
-    Promise.resolve({ ok: true })
-  ) as jest.Mock;
+  // Mock fetch using spyOn for proper cleanup
+  const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+    ok: true,
+  } as Response);
 
   render(<App />);
   const testButton = screen.getByText('Test');
@@ -25,5 +25,5 @@ test('renders Test button and handles health check', async () => {
   expect(status).toBeInTheDocument();
 
   // Clean up fetch mock
-  (global.fetch as jest.Mock).mockRestore && (global.fetch as jest.Mock).mockRestore();
+  fetchSpy.mockRestore();
 });
