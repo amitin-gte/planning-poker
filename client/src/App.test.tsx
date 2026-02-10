@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
 test('renders learn react link', () => {
@@ -18,7 +18,7 @@ test('renders Test button and handles health check', async () => {
   const testButton = screen.getByText('Test');
   expect(testButton).toBeInTheDocument();
 
-  testButton.click();
+  fireEvent.click(testButton);
 
   // Wait for the health status to appear
   const status = await screen.findByText('API is healthy!');
