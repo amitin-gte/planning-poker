@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Register RoomRepository as a singleton service for proper lifetime management
+builder.Services.AddSingleton<PlanningPoker.Api.Repositories.RoomRepository>();
+
 // Add CORS policy for local development
 if (builder.Environment.IsDevelopment())
 {
