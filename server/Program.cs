@@ -4,6 +4,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Register RoomRepository as a singleton service for proper lifetime management
+builder.Services.AddSingleton<PlanningPoker.Api.Repositories.RoomRepository>();
+
 // Add CORS policy for local development
 if (builder.Environment.IsDevelopment())
 {
@@ -37,5 +40,27 @@ app.UseHttpsRedirection();
 // Minimal health endpoint to verify the service is running.
 // TODO: Replace or extend this with domain-specific endpoints for Planning Poker.
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+
+// Room CRUD endpoints
+app.MapPost("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo, PlanningPoker.Api.Models.RoomConfig room) =>
+{
+    var createdRoom = repo.Create(room);
+    return Results.Created($"/rooms/{createdRoom.RoomId}", createdRoom);
+});
+app.MapPut("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId, PlanningPoker.Api.Models.RoomConfig room) =>
+{
+    room.RoomId = roomId;
+    return repo.Update(room) ? Results.Ok(room) : Results.NotFound();
+});
+app.MapGet("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId) =>
+{
+    var room = repo.Get(roomId);
+    return room != null ? Results.Ok(room) : Results.NotFound();
+});
+app.MapDelete("/rooms/{roomId}", (PlanningPoker.Api.Repositories.RoomRepository repo, string roomId) =>
+{
+    return repo.Delete(roomId) ? Results.Ok() : Results.NotFound();
+});
+app.MapGet("/rooms", (PlanningPoker.Api.Repositories.RoomRepository repo) => Results.Ok(repo.GetAll()));
 
 app.Run();
