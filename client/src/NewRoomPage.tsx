@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 const API_BASE_URL = 'http://localhost:5233';
 
@@ -9,6 +10,7 @@ export default function NewRoomPage() {
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +18,10 @@ export default function NewRoomPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/rooms`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           name,
           pokerCards: cards.split(',').map(c => c.trim()),

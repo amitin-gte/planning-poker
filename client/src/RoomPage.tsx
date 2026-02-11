@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useAuth } from './AuthContext';
 
 const API_BASE_URL = 'http://localhost:5233';
 
@@ -13,10 +14,15 @@ export default function RoomPage() {
   const [room, setRoom] = useState<RoomConfig | null>(null);
   const [notFound, setNotFound] = useState(false);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
-    if (!id) return;
-    fetch(`${API_BASE_URL}/rooms/${id}`)
+    if (!id || !token) return;
+    fetch(`${API_BASE_URL}/rooms/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(res => {
         if (res.ok) return res.json();
         if (res.status === 404) throw new Error('notfound');
@@ -26,7 +32,7 @@ export default function RoomPage() {
       .catch(err => {
         if (err.message === 'notfound') setNotFound(true);
       });
-  }, [id]);
+  }, [id, token]);
 
   if (notFound) {
     return (
