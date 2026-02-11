@@ -1,47 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-const API_BASE_URL = 'http://localhost:5233';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import './App.css';
+import NewRoomPage from './NewRoomPage';
+import AdminRoomsPage from './AdminRoomsPage';
+import RoomPage from './RoomPage';
+
+function Home() {
+  return (
+    <div className="home-options">
+      <h1>Planning Poker</h1>
+      <Link to="/new-room" className="btn">Create a new poker room</Link>
+      <Link to="/admin/rooms" className="btn">See all rooms</Link>
+    </div>
+  );
+}
+
 
 function App() {
-  const [healthStatus, setHealthStatus] = React.useState<string | null>(null);
-
-  const testHealth = async () => {
-    setHealthStatus(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/health`);
-      if (response.ok) {
-        setHealthStatus('API is healthy!');
-      } else {
-        setHealthStatus('API health check failed.');
-      }
-    } catch (error) {
-      console.error('Error while checking API health:', error);
-
-      setHealthStatus(`Error connecting to API: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button style={{ marginTop: 20 }} onClick={testHealth}>Test API Connection</button>
-        {healthStatus && <div style={{ marginTop: 10 }}>{healthStatus}</div>}
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/new-room" element={<NewRoomPage />} />
+        <Route path="/admin/rooms" element={<AdminRoomsPage />} />
+        <Route path="/room/:id" element={<RoomPage />} />
+      </Routes>
+    </Router>
   );
 }
 

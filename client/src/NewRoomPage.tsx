@@ -1,0 +1,55 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = 'http://localhost:5233';
+
+export default function NewRoomPage() {
+  const [name, setName] = useState('');
+  const [cards, setCards] = useState('1,2,3,5,8,13,21,?');
+  const [timer, setTimer] = useState(60);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/rooms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          pokerCards: cards.split(',').map(c => c.trim()),
+          votingCountdownSeconds: timer
+        })
+      });
+      if (!res.ok) throw new Error('Failed to create room');
+      const data = await res.json();
+      navigate(`/room/${data.roomId}`);
+    } catch (err: any) {
+      setError(err.message || 'Unknown error');
+    }
+  };
+
+  return (
+    <div className="new-room-page">
+      <h2>Create a New Poker Room</h2>
+      <form onSubmit={handleCreate}>
+        <div>
+          <label>Room Name:</label>
+          <input value={name} onChange={e => setName(e.target.value)} required />
+        </div>
+        <div>
+          <label>Poker Cards (comma separated):</label>
+          <input value={cards} onChange={e => setCards(e.target.value)} required />
+        </div>
+        <div>
+          <label>Voting Countdown (seconds):</label>
+          <input type="number" value={timer} min={10} max={600} onChange={e => setTimer(Number(e.target.value))} required />
+        </div>
+        <button type="submit">Create</button>
+        {error && <div className="error">{error}</div>}
+      </form>
+    </div>
+  );
+}
