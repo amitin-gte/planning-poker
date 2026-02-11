@@ -5,10 +5,11 @@ using System.Linq;
 
 namespace PlanningPoker.Api.Repositories
 {
-    public class RoomRepository
+    public class RoomRepository : IDisposable
     {
         private readonly LiteDatabase _db;
         private readonly ILiteCollection<RoomConfig> _rooms;
+        private bool _disposed = false;
 
         public RoomRepository(string dbPath = "Rooms.db")
         {
@@ -26,10 +27,6 @@ namespace PlanningPoker.Api.Repositories
 
         public bool Update(RoomConfig room)
         {
-            // LiteDB expects _id field for update
-            var existing = _rooms.FindOne(x => x.RoomId == room.RoomId);
-            if (existing == null) return false;
-            room.RoomId = existing.RoomId;
             return _rooms.Update(room);
         }
 
@@ -46,6 +43,24 @@ namespace PlanningPoker.Api.Repositories
         public List<RoomConfig> GetAll()
         {
             return _rooms.FindAll().ToList();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _db?.Dispose();
+                }
+                _disposed = true;
+            }
         }
     }
 }
