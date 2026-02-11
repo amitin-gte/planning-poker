@@ -1,3 +1,87 @@
+/* Centered button container and styled buttons for all pages */
+.centered-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.centered-buttons button {
+  min-width: 160px;
+  padding: 0.6em 1.2em;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: none;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.centered-buttons button:hover {
+  background: #1565c0;
+}
+
+.centered-buttons .btn {
+  min-width: 200px;
+  padding: 0.7em 1.5em;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  border: none;
+  background: #1976d2;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s;
+  display: block;
+}
+
+.centered-buttons .btn:hover {
+  background: #1565c0;
+}
+
+/* Grey style for Home button */
+.centered-buttons .btn-grey {
+  background: #888;
+  color: #fff;
+}
+.centered-buttons .btn-grey:hover {
+  background: #555;
+}
+
+/* Red style for Delete button */
+.centered-buttons .btn-red {
+  background: #d32f2f;
+  color: #fff;
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+.centered-buttons .btn-red:hover {
+  background: #b71c1c;
+}
+
+.room-link {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.room-link:hover {
+  color: #1565c0;
+}
+
+.error {
+  color: #d32f2f;
+  margin-top: 1rem;
+  text-align: center;
+}
 .App {
   text-align: center;
 }

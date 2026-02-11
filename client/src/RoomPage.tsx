@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:5233';
 
@@ -31,9 +31,12 @@ export default function RoomPage() {
   if (notFound) {
     return (
       <div className="room-not-found">
-        <h2>Room not found.</h2>
-        <p>Probably it was deleted by admin. Would you like to create a new room?</p>
-        <button onClick={() => navigate('/new-room')}>Create a new room</button>
+        <h2 style={{ textAlign: 'center' }}>Room not found.</h2>
+        <p style={{ textAlign: 'center' }}>Probably it was deleted by admin. Would you like to create a new room?</p>
+        <div className="centered-buttons">
+          <button onClick={() => navigate('/new-room')}>Create a new room</button>
+          <Link to="/" className="btn btn-grey">Home</Link>
+        </div>
       </div>
     );
   }
@@ -41,8 +44,11 @@ export default function RoomPage() {
   if (!room) return <div>Loading...</div>;
 
   return (
-    <div className="room-page">
-      <h2>{room.name}</h2>
+    <div className="room-page" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '3rem' }}>
+      <h2 style={{ textAlign: 'center', fontSize: '2.2rem', marginBottom: '2rem', fontWeight: 600, letterSpacing: '0.03em' }}>{room.name}</h2>
+      <div className="centered-buttons" style={{ marginTop: '1.5rem' }}>
+        <Link to="/" className="btn btn-grey">Home</Link>
+      </div>
     </div>
   );
 }

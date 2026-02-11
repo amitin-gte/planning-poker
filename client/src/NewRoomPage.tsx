@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const API_BASE_URL = 'http://localhost:5233';
 
@@ -33,23 +33,26 @@ export default function NewRoomPage() {
 
   return (
     <div className="new-room-page">
-      <h2>Create a New Poker Room</h2>
-      <form onSubmit={handleCreate}>
-        <div>
+      <h2 style={{ textAlign: 'center' }}>Create a New Poker Room</h2>
+      <form onSubmit={handleCreate} className="centered-buttons" style={{ maxWidth: 400, margin: '0 auto' }}>
+        <div style={{ width: '100%' }}>
           <label>Room Name:</label>
-          <input value={name} onChange={e => setName(e.target.value)} required />
+          <input value={name} onChange={e => setName(e.target.value)} required style={{ width: '100%' }} />
         </div>
-        <div>
+        <div style={{ width: '100%' }}>
           <label>Poker Cards (comma separated):</label>
-          <input value={cards} onChange={e => setCards(e.target.value)} required />
+          <input value={cards} onChange={e => setCards(e.target.value)} required style={{ width: '100%' }} />
         </div>
-        <div>
+        <div style={{ width: '100%' }}>
           <label>Voting Countdown (seconds):</label>
-          <input type="number" value={timer} min={10} max={600} onChange={e => setTimer(Number(e.target.value))} required />
+          <input type="number" value={timer} min={10} max={600} onChange={e => setTimer(Number(e.target.value))} required style={{ width: '100%' }} />
         </div>
         <button type="submit">Create</button>
         {error && <div className="error">{error}</div>}
       </form>
+      <div className="centered-buttons" style={{ marginTop: '1.5rem' }}>
+        <Link to="/" className="btn btn-grey">Home</Link>
+      </div>
     </div>
   );
 }

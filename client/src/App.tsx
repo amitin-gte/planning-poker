@@ -8,8 +8,8 @@ import RoomPage from './RoomPage';
 
 function Home() {
   return (
-    <div className="home-options">
-      <h1>Planning Poker</h1>
+    <div className="home-options centered-buttons">
+      <h1 style={{ marginBottom: '2rem' }}>Planning Poker</h1>
       <Link to="/new-room" className="btn">Create a new poker room</Link>
       <Link to="/admin/rooms" className="btn">See all rooms</Link>
     </div>
