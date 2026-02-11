@@ -41,16 +41,16 @@ export default function NewRoomPage() {
       <h2 style={{ textAlign: 'center' }}>Create a New Poker Room</h2>
       <form onSubmit={handleCreate} className="centered-buttons" style={{ maxWidth: 400, margin: '0 auto' }}>
         <div style={{ width: '100%' }}>
-          <label>Room Name:</label>
-          <input value={name} onChange={e => setName(e.target.value)} required style={{ width: '100%' }} />
+          <label htmlFor="room-name">Room Name:</label>
+          <input id="room-name" value={name} onChange={e => setName(e.target.value)} required style={{ width: '100%' }} />
         </div>
         <div style={{ width: '100%' }}>
-          <label>Poker Cards (comma separated):</label>
-          <input value={cards} onChange={e => setCards(e.target.value)} required style={{ width: '100%' }} />
+          <label htmlFor="poker-cards">Poker Cards (comma separated):</label>
+          <input id="poker-cards" value={cards} onChange={e => setCards(e.target.value)} required style={{ width: '100%' }} />
         </div>
         <div style={{ width: '100%' }}>
-          <label>Voting Countdown (seconds):</label>
-          <input type="number" value={timer} min={10} max={600} onChange={e => setTimer(Number(e.target.value))} required style={{ width: '100%' }} />
+          <label htmlFor="voting-countdown">Voting Countdown (seconds):</label>
+          <input id="voting-countdown" type="number" value={timer} min={10} max={600} onChange={e => setTimer(Number(e.target.value))} required style={{ width: '100%' }} />
         </div>
         <button type="submit">Create</button>
         {error && <div className="error">{error}</div>}

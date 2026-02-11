@@ -66,7 +66,8 @@ app.MapPost("/users/signin", (
         user = userRepo.Create(request.Username, request.Password, role);
         if (user == null)
         {
-            return Results.BadRequest(new { error = "Failed to create user" });
+            // If user creation fails (e.g., username already exists), treat this as invalid credentials
+            return Results.Unauthorized(new { error = "Invalid username or password" });
         }
     }
     
@@ -91,11 +92,23 @@ app.MapGet("/users/list", (
     {
         return Results.Unauthorized();
     }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
+
+    var authHeaderValue = authHeader.ToString().Trim();
+    const string bearerPrefix = "Bearer ";
+    if (!authHeaderValue.StartsWith(bearerPrefix, System.StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.Unauthorized();
+    }
+
+    var token = authHeaderValue.Substring(bearerPrefix.Length);
     var user = tokenService.ValidateToken(token);
-    
-    if (user == null || user.Role != PlanningPoker.Api.Models.UserRole.Admin)
+
+    if (user == null)
+    {
+        return Results.Unauthorized();
+    }
+
+    if (user.Role != PlanningPoker.Api.Models.UserRole.Admin)
     {
         return Results.StatusCode(403);
     }

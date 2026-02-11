@@ -27,7 +27,7 @@ Create and update API endpoints:
 Create page /admin/users similar to /admin/rooms, but for user management.
 
 Implement scenarios:
- * The root page is open, the list of users is empty (as per endpoint /users/any) - present the site initiation form asking for the admin username and password. Create the first user with role Admin. Automatically sign in and present the regular home page.
+ * The root page is open, the list of users is empty (as per endpoint /users/any) - present the site initialization form asking for the admin username and password. Create the first user with role Admin. Automatically sign in and present the regular home page.
  * The root page is open, the user is not signed in (no token on the client side) - present the sign-in/sign-up form asking for username and password. Once credentials are submitted, use the POST /users/signin endpoint to get the token. After that present the regular home page.
  * The root page is open, the user role is not Admin - don't show button 'See all rooms'
  * The root page is open, the user role is Admin - show button 'See all rooms' and button 'Manage users' - guiding to /admin/users
