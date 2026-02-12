@@ -67,7 +67,7 @@ app.MapPost("/users/signin", (
         if (user == null)
         {
             // If user creation fails (e.g., username already exists), treat this as invalid credentials
-            return Results.Unauthorized(new { error = "Invalid username or password" });
+            return Results.Json(new { error = "Invalid username or password" }, statusCode: 401);
         }
     }
     
