@@ -24,7 +24,7 @@ namespace PlanningPoker.Tests
         }
 
         [Fact]
-        public void Create_ReturnNull_WhenUsernameExists()
+        public void Create_ReturnsNull_WhenUsernameExists()
         {
             using var repo = GetRepo();
             repo.Create("alice", "password123", UserRole.User);

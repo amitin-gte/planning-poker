@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-
-const API_BASE_URL = 'http://localhost:5233';
+import { API_BASE_URL } from './config';
 
 interface RoomConfig {
   roomId: string;
@@ -52,7 +51,7 @@ export default function AdminRoomsPage() {
         }
       });
       if (!res.ok) throw new Error('Failed to delete');
-      setRooms(rooms => rooms.filter(r => r.roomId !== roomId));
+      await fetchRooms();
     } catch (err: any) {
       alert(err.message || 'Unknown error');
     }
