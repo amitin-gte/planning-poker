@@ -45,6 +45,39 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Helper function to validate and extract user from authorization header
+static IResult? ValidateAuth(HttpRequest request, PlanningPoker.Api.Services.TokenService tokenService, PlanningPoker.Api.Models.UserRole? requiredRole, out PlanningPoker.Api.Models.User? user)
+{
+    user = null;
+    
+    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
+    {
+        return Results.Unauthorized();
+    }
+
+    var authHeaderValue = authHeader.ToString().Trim();
+    const string bearerPrefix = "Bearer ";
+    if (!authHeaderValue.StartsWith(bearerPrefix, System.StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.Unauthorized();
+    }
+
+    var token = authHeaderValue.Substring(bearerPrefix.Length);
+    user = tokenService.ValidateToken(token);
+
+    if (user == null)
+    {
+        return Results.Unauthorized();
+    }
+
+    if (requiredRole.HasValue && user.Role != requiredRole.Value)
+    {
+        return Results.StatusCode(403);
+    }
+    
+    return null; // No error, validation succeeded
+}
+
 // Minimal health endpoint to verify the service is running.
 // TODO: Replace or extend this with domain-specific endpoints for Planning Poker.
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
@@ -87,31 +120,8 @@ app.MapGet("/users/list", (
     PlanningPoker.Api.Services.TokenService tokenService,
     HttpRequest request) =>
 {
-    // Validate token and check admin role
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-
-    var authHeaderValue = authHeader.ToString().Trim();
-    const string bearerPrefix = "Bearer ";
-    if (!authHeaderValue.StartsWith(bearerPrefix, System.StringComparison.OrdinalIgnoreCase))
-    {
-        return Results.Unauthorized();
-    }
-
-    var token = authHeaderValue.Substring(bearerPrefix.Length);
-    var user = tokenService.ValidateToken(token);
-
-    if (user == null)
-    {
-        return Results.Unauthorized();
-    }
-
-    if (user.Role != PlanningPoker.Api.Models.UserRole.Admin)
-    {
-        return Results.StatusCode(403);
-    }
+    var authResult = ValidateAuth(request, tokenService, PlanningPoker.Api.Models.UserRole.Admin, out var user);
+    if (authResult != null) return authResult;
     
     var users = userRepo.List();
     var userList = users.Select(u => new PlanningPoker.Api.Models.UserListItem
@@ -135,19 +145,8 @@ app.MapDelete("/users/{username}", (
     HttpRequest request,
     string username) =>
 {
-    // Validate token and check admin role
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null || user.Role != PlanningPoker.Api.Models.UserRole.Admin)
-    {
-        return Results.StatusCode(403);
-    }
+    var authResult = ValidateAuth(request, tokenService, PlanningPoker.Api.Models.UserRole.Admin, out var user);
+    if (authResult != null) return authResult;
     
     return userRepo.Delete(username) ? Results.Ok() : Results.NotFound();
 });
@@ -159,19 +158,8 @@ app.MapPost("/rooms", (
     HttpRequest request,
     PlanningPoker.Api.Models.RoomConfig room) =>
 {
-    // Validate token
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null)
-    {
-        return Results.Unauthorized();
-    }
+    var authResult = ValidateAuth(request, tokenService, null, out var user);
+    if (authResult != null) return authResult;
     
     var createdRoom = repo.Create(room);
     return Results.Created($"/rooms/{createdRoom.RoomId}", createdRoom);
@@ -184,19 +172,8 @@ app.MapPut("/rooms/{roomId}", (
     string roomId,
     PlanningPoker.Api.Models.RoomConfig room) =>
 {
-    // Validate token
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null)
-    {
-        return Results.Unauthorized();
-    }
+    var authResult = ValidateAuth(request, tokenService, null, out var user);
+    if (authResult != null) return authResult;
     
     room.RoomId = roomId;
     return repo.Update(room) ? Results.Ok(room) : Results.NotFound();
@@ -208,19 +185,8 @@ app.MapGet("/rooms/{roomId}", (
     HttpRequest request,
     string roomId) =>
 {
-    // Validate token
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null)
-    {
-        return Results.Unauthorized();
-    }
+    var authResult = ValidateAuth(request, tokenService, null, out var user);
+    if (authResult != null) return authResult;
     
     var room = repo.Get(roomId);
     return room != null ? Results.Ok(room) : Results.NotFound();
@@ -232,19 +198,8 @@ app.MapDelete("/rooms/{roomId}", (
     HttpRequest request,
     string roomId) =>
 {
-    // Validate token and check admin role
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null || user.Role != PlanningPoker.Api.Models.UserRole.Admin)
-    {
-        return Results.StatusCode(403);
-    }
+    var authResult = ValidateAuth(request, tokenService, PlanningPoker.Api.Models.UserRole.Admin, out var user);
+    if (authResult != null) return authResult;
     
     return repo.Delete(roomId) ? Results.Ok() : Results.NotFound();
 });
@@ -254,19 +209,8 @@ app.MapGet("/rooms", (
     PlanningPoker.Api.Services.TokenService tokenService,
     HttpRequest request) =>
 {
-    // Validate token and check admin role
-    if (!request.Headers.TryGetValue("Authorization", out var authHeader))
-    {
-        return Results.Unauthorized();
-    }
-    
-    var token = authHeader.ToString().Replace("Bearer ", "");
-    var user = tokenService.ValidateToken(token);
-    
-    if (user == null || user.Role != PlanningPoker.Api.Models.UserRole.Admin)
-    {
-        return Results.StatusCode(403);
-    }
+    var authResult = ValidateAuth(request, tokenService, PlanningPoker.Api.Models.UserRole.Admin, out var user);
+    if (authResult != null) return authResult;
     
     return Results.Ok(repo.GetAll());
 });
