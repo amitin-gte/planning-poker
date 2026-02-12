@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using PlanningPoker.Api.Models;
@@ -9,10 +11,16 @@ using Xunit;
 
 namespace PlanningPoker.Tests
 {
+    [Collection("Sequential")]
     public class UserApiTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly CustomWebApplicationFactory _factory;
         private readonly HttpClient _client;
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         public UserApiTests(CustomWebApplicationFactory factory)
         {
@@ -39,7 +47,7 @@ namespace PlanningPoker.Tests
             var response = await _client.PostAsJsonAsync("/users/signin", request);
             Assert.True(response.IsSuccessStatusCode);
 
-            var result = await response.Content.ReadFromJsonAsync<SignInResponse>();
+            var result = await response.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
             Assert.NotNull(result);
             Assert.Equal("admin", result.Username);
             Assert.Equal(UserRole.Admin, result.Role);
@@ -58,7 +66,7 @@ namespace PlanningPoker.Tests
             var response = await _client.PostAsJsonAsync("/users/signin", userRequest);
             
             Assert.True(response.IsSuccessStatusCode);
-            var result = await response.Content.ReadFromJsonAsync<SignInResponse>();
+            var result = await response.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
             Assert.NotNull(result);
             Assert.Equal(UserRole.User, result.Role);
         }
@@ -80,7 +88,7 @@ namespace PlanningPoker.Tests
             // Create regular user
             var userRequest = new SignInRequest { Username = "user2", Password = "pass" };
             var userResponse = await _client.PostAsJsonAsync("/users/signin", userRequest);
-            var userData = await userResponse.Content.ReadFromJsonAsync<SignInResponse>();
+            var userData = await userResponse.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
 
             // Try to access users list with user token
             _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {userData.Token}");
@@ -94,7 +102,7 @@ namespace PlanningPoker.Tests
             // Create admin user
             var adminRequest = new SignInRequest { Username = "admin3", Password = "pass" };
             var adminResponse = await _client.PostAsJsonAsync("/users/signin", adminRequest);
-            var adminData = await adminResponse.Content.ReadFromJsonAsync<SignInResponse>();
+            var adminData = await adminResponse.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
 
             // Create another user
             var userRequest = new SignInRequest { Username = "user3", Password = "pass" };
@@ -106,7 +114,7 @@ namespace PlanningPoker.Tests
             var response = await client.GetAsync("/users/list");
             
             Assert.True(response.IsSuccessStatusCode);
-            var users = await response.Content.ReadFromJsonAsync<List<UserListItem>>();
+            var users = await response.Content.ReadFromJsonAsync<List<UserListItem>>(_jsonOptions);
             Assert.NotNull(users);
             Assert.True(users.Count >= 2);
             Assert.Contains(users, u => u.Username == "admin3" && u.Role == UserRole.Admin);
@@ -129,7 +137,7 @@ namespace PlanningPoker.Tests
 
             var userRequest = new SignInRequest { Username = "user4", Password = "pass" };
             var userResponse = await _client.PostAsJsonAsync("/users/signin", userRequest);
-            var userData = await userResponse.Content.ReadFromJsonAsync<SignInResponse>();
+            var userData = await userResponse.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
 
             // Try to delete with user token
             var client = _factory.CreateClient();
@@ -144,7 +152,7 @@ namespace PlanningPoker.Tests
             // Create admin
             var adminRequest = new SignInRequest { Username = "admin5", Password = "pass" };
             var adminResponse = await _client.PostAsJsonAsync("/users/signin", adminRequest);
-            var adminData = await adminResponse.Content.ReadFromJsonAsync<SignInResponse>();
+            var adminData = await adminResponse.Content.ReadFromJsonAsync<SignInResponse>(_jsonOptions);
 
             // Create user to delete
             var userRequest = new SignInRequest { Username = "user5", Password = "pass" };
