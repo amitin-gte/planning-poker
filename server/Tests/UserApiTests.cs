@@ -9,12 +9,12 @@ using Xunit;
 
 namespace PlanningPoker.Tests
 {
-    public class UserApiTests : IClassFixture<WebApplicationFactory<Program>>
+    public class UserApiTests : IClassFixture<CustomWebApplicationFactory>
     {
-        private readonly WebApplicationFactory<Program> _factory;
+        private readonly CustomWebApplicationFactory _factory;
         private readonly HttpClient _client;
 
-        public UserApiTests(WebApplicationFactory<Program> factory)
+        public UserApiTests(CustomWebApplicationFactory factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
