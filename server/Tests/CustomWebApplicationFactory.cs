@@ -21,11 +21,10 @@ namespace PlanningPoker.Tests
                 services.RemoveAll<TokenService>();
 
                 // Register with unique in-memory databases for each test run to avoid conflicts
-                // Using a counter to ensure each factory instance gets a unique database
-                // Using Connection=direct to prevent state leakage between tests
+                // Using a counter to ensure each factory instance gets a unique database filename
                 var dbId = System.Threading.Interlocked.Increment(ref _testDbCounter);
-                services.AddSingleton(new UserRepository($"Filename=:memory:;Connection=direct;Database=TestUsers{dbId}"));
-                services.AddSingleton(new RoomRepository($"Filename=:memory:;Connection=direct;Database=TestRooms{dbId}"));
+                services.AddSingleton(new UserRepository($"Filename=:memory:TestUsers{dbId}"));
+                services.AddSingleton(new RoomRepository($"Filename=:memory:TestRooms{dbId}"));
                 services.AddSingleton<TokenService>();
             });
         }
