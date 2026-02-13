@@ -19,12 +19,14 @@ namespace PlanningPoker.Tests
             var user = repo.Create("alice", "password123", UserRole.User);
             Assert.NotNull(user);
             Assert.Equal("alice", user.Username);
-            Assert.Equal("password123", user.Password);
+            // Password should be hashed, not plain text
+            Assert.NotEqual("password123", user.Password);
+            Assert.True(User.VerifyPassword("password123", user.Password));
             Assert.Equal(UserRole.User, user.Role);
         }
 
         [Fact]
-        public void Create_ReturnNull_WhenUsernameExists()
+        public void Create_ReturnsNull_WhenUsernameExists()
         {
             using var repo = GetRepo();
             repo.Create("alice", "password123", UserRole.User);

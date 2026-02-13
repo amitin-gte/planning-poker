@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-
-const API_BASE_URL = 'http://localhost:5233';
+import { API_BASE_URL } from './config';
 
 interface RoomConfig {
   roomId: string;

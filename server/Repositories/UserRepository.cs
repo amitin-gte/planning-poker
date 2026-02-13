@@ -29,7 +29,7 @@ namespace PlanningPoker.Api.Repositories
             var user = new User
             {
                 Username = username,
-                Password = password,
+                Password = User.HashPassword(password),
                 Role = role
             };
 
@@ -40,7 +40,7 @@ namespace PlanningPoker.Api.Repositories
         public User SignIn(string username, string password)
         {
             var user = _users.FindOne(x => x.Username == username);
-            if (user != null && user.Password == password)
+            if (user != null && User.VerifyPassword(password, user.Password))
             {
                 return user;
             }

@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-
-const API_BASE_URL = 'http://localhost:5233';
+import { API_BASE_URL } from './config';
 
 interface UserListItem {
   username: string;
@@ -50,7 +49,7 @@ export default function AdminUsersPage() {
         }
       });
       if (!res.ok) throw new Error('Failed to delete');
-      setUsers(users => users.filter(u => u.username !== username));
+      await fetchUsers();
     } catch (err: any) {
       alert(err.message || 'Unknown error');
     }

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE_URL } from './config';
 
 interface User {
   username: string;
@@ -39,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check if site needs initialization
     const checkInitialization = async () => {
       try {
-        const response = await fetch('http://localhost:5233/users/any');
+        const response = await fetch(`${API_BASE_URL}/users/any`);
         setNeedsInitialization(response.status === 404);
       } catch (error) {
         console.error('Failed to check initialization status:', error);
@@ -61,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (username: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch('http://localhost:5233/users/signin', {
+      const response = await fetch(`${API_BASE_URL}/users/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
