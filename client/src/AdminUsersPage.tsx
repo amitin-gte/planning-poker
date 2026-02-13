@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { API_BASE_URL } from './config';
+import { authenticatedFetch } from './authUtils';
 
 interface UserListItem {
   username: string;
@@ -12,16 +13,17 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { token, signOut } = useAuth();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/users/list`, {
+      const res = await authenticatedFetch(`${API_BASE_URL}/users/list`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        onUnauthorized: signOut
       });
       if (!res.ok) throw new Error('Failed to fetch users');
       const data = await res.json();
@@ -31,7 +33,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, signOut]);
 
   useEffect(() => { 
     if (token) {
@@ -42,11 +44,12 @@ export default function AdminUsersPage() {
   const handleDelete = async (username: string) => {
     if (!window.confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/users/${username}`, { 
+      const res = await authenticatedFetch(`${API_BASE_URL}/users/${username}`, { 
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        onUnauthorized: signOut
       });
       if (!res.ok) throw new Error('Failed to delete');
       await fetchUsers();

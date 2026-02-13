@@ -2,10 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { API_BASE_URL } from './config';
+import { authenticatedFetch } from './authUtils';
 
 interface RoomConfig {
   roomId: string;
   name: string;
+  hostUsername: string;
   pokerCards: string[];
   votingCountdownSeconds: number;
 }
@@ -14,16 +16,17 @@ export default function AdminRoomsPage() {
   const [rooms, setRooms] = useState<RoomConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { token, signOut } = useAuth();
 
   const fetchRooms = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/rooms`, {
+      const res = await authenticatedFetch(`${API_BASE_URL}/rooms`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        onUnauthorized: signOut
       });
       if (!res.ok) throw new Error('Failed to fetch rooms');
       const data = await res.json();
@@ -33,7 +36,7 @@ export default function AdminRoomsPage() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, signOut]);
 
   useEffect(() => { 
     if (token) {
@@ -44,11 +47,12 @@ export default function AdminRoomsPage() {
   const handleDelete = async (roomId: string) => {
     if (!window.confirm('Are you sure you want to delete this room? This action cannot be undone.')) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/rooms/${roomId}`, { 
+      const res = await authenticatedFetch(`${API_BASE_URL}/rooms/${roomId}`, { 
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        onUnauthorized: signOut
       });
       if (!res.ok) throw new Error('Failed to delete');
       await fetchRooms();
@@ -66,6 +70,7 @@ export default function AdminRoomsPage() {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Host</th>
                 <th>Cards</th>
                 <th>Timer</th>
                 <th>Room ID</th>
@@ -76,6 +81,7 @@ export default function AdminRoomsPage() {
               {rooms.map(room => (
                 <tr key={room.roomId}>
                   <td>{room.name}</td>
+                  <td>{room.hostUsername}</td>
                   <td>{room.pokerCards.join(', ')}</td>
                   <td>{room.votingCountdownSeconds}s</td>
                   <td>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { API_BASE_URL } from './config';
+import { authenticatedFetch } from './authUtils';
 
 export default function NewRoomPage() {
   const [name, setName] = useState('');
@@ -9,13 +10,13 @@ export default function NewRoomPage() {
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, signOut } = useAuth();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/rooms`, {
+      const res = await authenticatedFetch(`${API_BASE_URL}/rooms`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -25,7 +26,8 @@ export default function NewRoomPage() {
           name,
           pokerCards: cards.split(',').map(c => c.trim()),
           votingCountdownSeconds: timer
-        })
+        }),
+        onUnauthorized: signOut
       });
       if (!res.ok) throw new Error('Failed to create room');
       const data = await res.json();

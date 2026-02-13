@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace PlanningPoker.Api.Repositories
 {
-    public class UserRepository : IDisposable
+    public class UserRepository : IUserRepository, IDisposable
     {
         private readonly LiteDatabase _db;
         private readonly ILiteCollection<User> _users;

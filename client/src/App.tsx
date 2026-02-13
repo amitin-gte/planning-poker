@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import './App.css';
 import NewRoomPage from './NewRoomPage';
 import AdminRoomsPage from './AdminRoomsPage';
@@ -9,6 +9,7 @@ import RoomPage from './RoomPage';
 import { AuthProvider, useAuth } from './AuthContext';
 import InitializationPage from './InitializationPage';
 import SignInPage from './SignInPage';
+import { getAndClearRedirectUrl } from './authUtils';
 
 function Home() {
   const { user, isAdmin, signOut } = useAuth();
@@ -32,6 +33,17 @@ function Home() {
 function AppContent() {
   const { user, isLoading, needsInitialization } = useAuth();
   const [initComplete, setInitComplete] = useState(false);
+  const navigate = useNavigate();
+
+  // Handle redirect after sign-in
+  useEffect(() => {
+    if (user) {
+      const redirectUrl = getAndClearRedirectUrl();
+      if (redirectUrl) {
+        navigate(redirectUrl);
+      }
+    }
+  }, [user, navigate]);
 
   if (isLoading) {
     return <div className="centered-form"><div>Loading...</div></div>;
