@@ -1,6 +1,7 @@
 using PlanningPoker.Api.Models;
 using PlanningPoker.Api.Repositories;
 using PlanningPoker.Api.Services;
+using PlanningPoker.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 // Register repositories and services as singletons for proper lifetime management
-builder.Services.AddSingleton<RoomRepository>();
-builder.Services.AddSingleton<UserRepository>();
+builder.Services.AddSingleton<IRoomRepository, RoomRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<RoomRepository>(sp => (RoomRepository)sp.GetRequiredService<IRoomRepository>());
+builder.Services.AddSingleton<UserRepository>(sp => (UserRepository)sp.GetRequiredService<IUserRepository>());
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<VotingSessionService>();
+
+// Add SignalR with JSON configuration for enum serialization
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 // Configure JSON serialization to convert enums to strings
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -28,7 +39,8 @@ if (builder.Environment.IsDevelopment())
         {
             policy.WithOrigins("http://localhost:3000")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Required for SignalR
         });
     });
 }
@@ -165,6 +177,9 @@ app.MapPost("/rooms", (
     var authResult = ValidateAuth(request, tokenService, null, out var user);
     if (authResult != null) return authResult;
     
+    // Set the host username to the authenticated user
+    room.HostUsername = user!.Username;
+    
     var createdRoom = repo.Create(room);
     return Results.Created($"/rooms/{createdRoom.RoomId}", createdRoom);
 });
@@ -218,6 +233,9 @@ app.MapGet("/rooms", (
     
     return Results.Ok(repo.GetAll());
 });
+
+// Map SignalR hub
+app.MapHub<PlanningPokerHub>("/hubs/planningpoker");
 
 app.Run();
 

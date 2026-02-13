@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace PlanningPoker.Api.Repositories
 {
-    public class RoomRepository : IDisposable
+    public class RoomRepository : IRoomRepository, IDisposable
     {
         private readonly LiteDatabase _db;
         private readonly ILiteCollection<RoomConfig> _rooms;
