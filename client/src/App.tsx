@@ -1,47 +1,71 @@
-import React from 'react';
-import logo from './logo.svg';
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
+import NewRoomPage from './NewRoomPage';
+import AdminRoomsPage from './AdminRoomsPage';
+import AdminUsersPage from './AdminUsersPage';
+import RoomPage from './RoomPage';
+import { AuthProvider, useAuth } from './AuthContext';
+import InitializationPage from './InitializationPage';
+import SignInPage from './SignInPage';
 
-const API_BASE_URL = 'http://localhost:5233';
-
-function App() {
-  const [healthStatus, setHealthStatus] = React.useState<string | null>(null);
-
-  const testHealth = async () => {
-    setHealthStatus(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/health`);
-      if (response.ok) {
-        setHealthStatus('API is healthy!');
-      } else {
-        setHealthStatus('API health check failed.');
-      }
-    } catch (error) {
-      console.error('Error while checking API health:', error);
-
-      setHealthStatus(`Error connecting to API: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
+function Home() {
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <button style={{ marginTop: 20 }} onClick={testHealth}>Test API Connection</button>
-        {healthStatus && <div style={{ marginTop: 10 }}>{healthStatus}</div>}
-      </header>
+    <div className="home-options centered-buttons">
+      <h1 style={{ marginBottom: '2rem' }}>Planning Poker</h1>
+      <p>Welcome, {user?.username}! <button onClick={signOut} className="btn btn-grey" style={{ display: 'inline', padding: '0.25rem 0.5rem', marginLeft: '0.5rem' }}>Sign Out</button></p>
+      
+      <Link to="/new-room" className="btn">Create a new poker room</Link>
+      {isAdmin() && (
+        <>
+          <Link to="/admin/rooms" className="btn">See all rooms</Link>
+          <Link to="/admin/users" className="btn">Manage users</Link>
+        </>
+      )}
     </div>
+  );
+}
+
+function AppContent() {
+  const { user, isLoading, needsInitialization } = useAuth();
+  const [initComplete, setInitComplete] = useState(false);
+
+  if (isLoading) {
+    return <div className="centered-form"><div>Loading...</div></div>;
+  }
+
+  // Show initialization page if needed
+  if (needsInitialization && !initComplete) {
+    return <InitializationPage onComplete={() => setInitComplete(true)} />;
+  }
+
+  // Show sign-in page if not authenticated
+  if (!user) {
+    return <SignInPage onComplete={() => {}} />;
+  }
+
+  // Show main app
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/new-room" element={<NewRoomPage />} />
+      <Route path="/admin/rooms" element={<AdminRoomsPage />} />
+      <Route path="/admin/users" element={<AdminUsersPage />} />
+      <Route path="/room/:id" element={<RoomPage />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 
