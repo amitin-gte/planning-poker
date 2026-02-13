@@ -33,9 +33,11 @@ planning-poker/
 │   ├── package.json     # Node.js dependencies
 │   └── tsconfig.json    # TypeScript configuration
 ├── server/              # .NET Web API backend
-│   ├── Controllers/     # API controllers
+│   ├── Hubs/            # SignalR hubs for real-time communication
 │   ├── Models/          # Data models
+│   ├── Repositories/    # Data access layer
 │   ├── Services/        # Business logic services
+│   ├── Tests/           # Unit and integration tests
 │   ├── Program.cs       # Application entry point
 │   └── PlanningPoker.Api.csproj  # .NET project file
 ├── changelog/           # Changelog entries for all PRs
@@ -85,13 +87,13 @@ dotnet publish -c Release
 
 ## Development Workflow
 
-This project follows specific workflow requirements documented in `GITHUB_COPILOT_INSTRUCTIONS.md`. All pull requests must include a changelog entry in the `/changelog` directory.
+This project follows specific workflow requirements documented in `GITHUB_COPILOT_INSTRUCTIONS.md`. All pull requests must include a changelog entry in the [`/changelog`](./changelog) directory, which contains a record of all changes made to the project organized by pull request.
 
 ## Contributing
 
 1. Create a feature branch
 2. Make your changes
-3. Add a changelog entry in `/changelog`
+3. Add a changelog entry in [`/changelog`](./changelog) describing your changes
 4. Submit a pull request
 
 ## License
